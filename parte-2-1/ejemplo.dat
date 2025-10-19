@@ -1,5 +1,5 @@
 set AUTOBUSES := a1 a2 a3 a4 a5;
-set FRANJAS := f1 f2 f3;
+set FRANJAS := f1;
 
 param kd := 0.5;
 param kp := 2.0;
@@ -9,7 +9,7 @@ param d :=
  a2 40.0
  a3 15.0
  a4 60.0
- a5 30.0
+ a5 -30.0
 ;
 
 param p :=

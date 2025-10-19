@@ -28,6 +28,39 @@ try:
         d = list(map(float, lines[2].split(",")))
         p = list(map(float, lines[3].split(",")))
 
+        # --- Additional data validations ---
+        if n < 0:
+            print(f"Error: El número de franjas ({n}) no puede ser negativo.")
+            sys.exit(1)
+        if m < 0:
+            print(f"Error: El número de autobuses ({m}) no puede ser negativo.")
+            sys.exit(1)
+        
+        if kd < 0:
+            print(f"Error: La constante kd ({kd}) no puede ser negativa.")
+            sys.exit(1)
+        if kp < 0:
+            print(f"Error: La constante kp ({kp}) no puede ser negativa.")
+            sys.exit(1)
+
+        if len(d) != m:
+            print(f"Error: El número de valores 'd' ({len(d)}) no coincide con el número de autobuses ({m}).")
+            sys.exit(1)
+
+        if len(p) != m:
+            print(f"Error: El número de valores 'p' ({len(p)}) no coincide con el número de autobuses ({m}).")
+            sys.exit(1)
+        
+        for i, val in enumerate(d):
+            if val < 0:
+                print(f"Error: El valor d en la posición {i} ({val}) no puede ser negativo.")
+                sys.exit(1)
+
+        for i, val in enumerate(p):
+            if val < 0:
+                print(f"Error: El valor p en la posición {i} ({val}) no puede ser negativo.")
+                sys.exit(1)
+
     # Error handling
     except (ValueError, IndexError):
         print(f"Error: Formato de datos incorrecto en el fichero de entrada '{infile}'.")
@@ -42,7 +75,7 @@ except IOError as e:
     sys.exit(1)
 
 try:
-    # Generar el .dat
+    # Generate .dat
     with open(outfile, 'w') as f:
         # add sets
         f.write(f"set AUTOBUSES := {' '.join([f'a{i+1}' for i in range(m)])};\n")
