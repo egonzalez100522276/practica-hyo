@@ -2,6 +2,7 @@
 import sys
 import os
 import subprocess
+import re
 
 if len(sys.argv) != 3:
     print("Use: ./gen-1.py <fichero-entrada> <fichero-salida>")
@@ -43,66 +44,63 @@ with open(outfile, 'w') as f:
 # Solve with GLPK
 result = subprocess.run(
     ["glpsol", "--model", "parte-2-1.mod", "--data", outfile, "-o", "output.out"],
-    capture_output=True, text=True
+    capture_output=True,
+    text=True
 )
 
-# Procesar la salida para mostrar solo información relevante
-output_lines = result.stdout.split('\n')
-solution_found = False
-variables_count = 0
-constraints_count = 0
-objective_value = 0.0
+# Parse result and print it
+objective_value = None
+variables_count = None
+constraints_count = None
+assignments = {}
 
-print("=" * 60)
-print("OPTIMAL SOLUTION FOUND")
-print("=" * 60)
+# Parse the result
+with open("output.out", "r") as f:
+    lines = f.readlines()
+    in_variable_section = False
+    for line in lines:
+        line = line.strip()
+        if not line:
+            in_variable_section = False
+            continue
 
-for i, line in enumerate(output_lines):
-    line = line.strip()
-    
-    # Buscar información clave
-    if "INTEGER OPTIMAL" in line:
-        solution_found = True
-        print(f"Status: {line}")
-    
-    elif "Objective:" in line and "OverallCost" in line:
-        # Extraer valor de la función objetivo
-        parts = line.split()
-        for part in parts:
-            if part.replace('.', '').isdigit():
-                objective_value = float(part)
-                break
-    
-    elif "Rows:" in line:
-        parts = line.split()
-        constraints_count = int(parts[1])
-    
-    elif "Columns:" in line:
-        parts = line.split()
-        variables_count = int(parts[1])
-    
-    elif "=== OPTIMAL SOLUTION ===" in line:
-        # Mostrar desde aquí hasta el final de la solución
-        print("\n" + "=" * 40)
-        for j in range(i, min(i + 20, len(output_lines))):
-            sol_line = output_lines[j].strip()
-            if sol_line and not sol_line.startswith("Model has been successfully processed"):
-                print(sol_line)
-        break
+        # Objective value
+        if line.startswith("Objective:"):
+            objective_value = float(line.split()[3])
+        
+        # Number of constraints
+        elif line.startswith("Rows:"):
+            constraints_count = int(line.split()[1])
+        
+        # Number of variables
+        elif line.startswith("Columns:"):
+            variables_count = int(line.split()[1])
+        
+        # "Variable section" is the last part of the .out file where the variables values are shown
+        elif "Column name" in line:
+            in_variable_section = True
+        elif in_variable_section:
+            # use regex to parse the variable line
+            # ej: 1 x[a1,f1] * 1 0 1
+            match = re.match(r"\s*\d+\s+x\[(a\d+),(f\d+)\]\s+\*\s+1", line)
+            if match:
+                bus, franja = match.groups()
+                assignments[bus] = franja
 
-# Si no encontramos el formato esperado, mostrar información básica
-if solution_found:
-    print(f"\nSummary:")
-    print(f"Objective value: {objective_value}")
-    print(f"Variables: {variables_count}")
-    print(f"Constraints: {constraints_count}")
-else:
-    # Mostrar salida completa si no se pudo parsear
-    print("Full output:")
-    print(result.stdout)
+# Print the results
+print(f"Coste total: {objective_value}, Variables: {variables_count}, Restricciones: {constraints_count}")
 
-if result.stderr:
-    print("\nErrors:")
-    print(result.stderr)
+# Bus assignments calculations
+all_buses = {f'a{i+1}' for i in range(m)}
+assigned_buses = set(assignments.keys())
+unassigned_buses = all_buses - assigned_buses
 
-print("=" * 60)
+
+for bus, franja in sorted(assignments.items()):
+    print(f"Autobús {bus} asignado a franja {franja}")
+
+for bus in sorted(list(unassigned_buses)):
+    print(f"Autobús {bus} sin asignar")
+
+# More detailed info
+print("Para más detalles, consulta el fichero output.out")
