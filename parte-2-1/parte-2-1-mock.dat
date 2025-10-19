@@ -1,0 +1,16 @@
+/* SETS */
+set AUTOBUSES := 1 2;
+set FRANJAS := 1;
+
+/* PARAMETERS */
+param kd := -1.0;
+param kp := 2.0;
+
+param d :=
+1   25
+2   40;
+
+param p :=
+1   450
+2   30;
+

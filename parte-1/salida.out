@@ -1,0 +1,70 @@
+Problem:    p1_hyo
+Rows:       11
+Columns:    25 (25 integer, 25 binary)
+Non-zeros:  75
+Status:     INTEGER OPTIMAL
+Objective:  OverallCost = 573 (MINimum)
+
+   No.   Row name        Activity     Lower bound   Upper bound
+------ ------------    ------------- ------------- -------------
+     1 OverallCost               573                             
+     2 ConstraintColumnas[A1]
+                                   1             1               
+     3 ConstraintColumnas[A2]
+                                   1             1               
+     4 ConstraintColumnas[A3]
+                                   1             1               
+     5 ConstraintColumnas[A4]
+                                   1             1               
+     6 ConstraintColumnas[A5]
+                                   1             1               
+     7 ConstraintFilas[T1]
+                                   1             1               
+     8 ConstraintFilas[T2]
+                                   1             1               
+     9 ConstraintFilas[T3]
+                                   1             1               
+    10 ConstraintFilas[T4]
+                                   1             1               
+    11 ConstraintFilas[T5]
+                                   1             1               
+
+   No. Column name       Activity     Lower bound   Upper bound
+------ ------------    ------------- ------------- -------------
+     1 x[T1,A1]     *              0             0             1 
+     2 x[T1,A2]     *              1             0             1 
+     3 x[T1,A3]     *              0             0             1 
+     4 x[T1,A4]     *              0             0             1 
+     5 x[T1,A5]     *              0             0             1 
+     6 x[T2,A1]     *              0             0             1 
+     7 x[T2,A2]     *              0             0             1 
+     8 x[T2,A3]     *              0             0             1 
+     9 x[T2,A4]     *              0             0             1 
+    10 x[T2,A5]     *              1             0             1 
+    11 x[T3,A1]     *              0             0             1 
+    12 x[T3,A2]     *              0             0             1 
+    13 x[T3,A3]     *              1             0             1 
+    14 x[T3,A4]     *              0             0             1 
+    15 x[T3,A5]     *              0             0             1 
+    16 x[T4,A1]     *              0             0             1 
+    17 x[T4,A2]     *              0             0             1 
+    18 x[T4,A3]     *              0             0             1 
+    19 x[T4,A4]     *              1             0             1 
+    20 x[T4,A5]     *              0             0             1 
+    21 x[T5,A1]     *              1             0             1 
+    22 x[T5,A2]     *              0             0             1 
+    23 x[T5,A3]     *              0             0             1 
+    24 x[T5,A4]     *              0             0             1 
+    25 x[T5,A5]     *              0             0             1 
+
+Integer feasibility conditions:
+
+KKT.PE: max.abs.err = 0.00e+00 on row 0
+        max.rel.err = 0.00e+00 on row 0
+        High quality
+
+KKT.PB: max.abs.err = 0.00e+00 on row 0
+        max.rel.err = 0.00e+00 on row 0
+        High quality
+
+End of output

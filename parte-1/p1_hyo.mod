@@ -1,14 +1,18 @@
+/* SETS */
 set TALLER;
 set AUTOBUS;
 
+/* PARAMETERS */
 param COST{TALLER, AUTOBUS};
 
+/* VARIABLES */
 var x{TALLER, AUTOBUS} binary;
 
-
+/* OBJECTIVE FUNCTION */
 minimize OverallCost:
   sum{i in TALLER, j in AUTOBUS} x[i,j]*COST[i,j];
 
+/* CONSTRAINTS */
 s.t. ConstraintColumnas{j in AUTOBUS}:
   sum{i in TALLER} x[i,j] >= 1;
 
