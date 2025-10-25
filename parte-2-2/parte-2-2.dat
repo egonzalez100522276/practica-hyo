@@ -8,10 +8,10 @@ param c:
       A1  A2  A3 :=
 A1    10  4   2
 A2     4  8   3
-A3     2  3   6 ;
+A3     2  3   6;
 
 # --- Disponibilidad de franjas por taller (o[s,t]) ---
 param o:
        T1  T2 :=
 S1      1   1
-S2      1   0 ;
+S2      1   0;

@@ -30,11 +30,11 @@ s.t. DefinitionY{i in AUTOBUSES, s in FRANJAS}:
   y[i, s] = sum{t in TALLERES} x[i, s, t];
 
 /* definition of the Wijs varible (AND logic gate) */
-s.t. W_up1 {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i < j}:
+s.t. W_up1 {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i <= j}:
     w[i,j,s] <= y[i,s];
 
-s.t. W_up2 {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i < j}:
+s.t. W_up2 {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i <= j}:
     w[i,j,s] <= y[j,s];
 
-s.t. W_low {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i < j}:
+s.t. W_low {i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS: i <= j}:
     w[i,j,s] >= y[i,s] + y[j,s] - 1;
