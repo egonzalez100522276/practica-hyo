@@ -1,0 +1,10 @@
+# --- Conjuntos ---
+set TALLER := T1 T2 T3;
+set AUTOBUS := A1 A2 A3 A4;
+
+# --- Parámetro de costes ---
+param COST : A1 A2 A3 A4 :=
+T1  4.0  8.0  7.0  6.0
+T2  2.0  3.0  6.0  4.0
+T3  5.0  9.0  2.0  7.0
+;
