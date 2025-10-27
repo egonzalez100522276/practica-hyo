@@ -4,7 +4,7 @@ import subprocess
 import re
 import argparse
 
-parser = argparse.ArgumentParser(description="Genera un fichero .dat para el problema de asignación de autobuses a talleres y lo resuelve con GLPK.")
+parser = argparse.ArgumentParser(description="Genera un fichero .dat para el problema 2.2.2. y lo resuelve con GLPK.")
 parser.add_argument("infile", help="Fichero de entrada con los datos del problema.")
 parser.add_argument("outfile", help="Fichero .dat de salida que se generará.")
 parser.add_argument("--debug", action="store_true", help="Activa el modo de depuración para mostrar más información.")

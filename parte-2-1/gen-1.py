@@ -1,16 +1,21 @@
-#!env python3
+#!/usr/bin/env python3
 import sys
-import os
 import re
 import subprocess
+import argparse
 
-if len(sys.argv) != 3:
-    print("Uso: ./gen-1.py <fichero-entrada> <fichero-salida>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description="Genera un fichero .dat para el problema 2.2.1. y lo resuelve con GLPK.")
+parser.add_argument("infile", help="Fichero de entrada con los datos del problema.")
+parser.add_argument("outfile", help="Fichero .dat de salida que se generará.")
+parser.add_argument("--debug", action="store_true", help="Activa el modo de depuración para mostrar más información.")
+args = parser.parse_args()
 
-infile = sys.argv[1]
-outfile = sys.argv[2]
+infile = args.infile
+outfile = args.outfile
 
+def debug_print(*message):
+    if args.debug:
+        print(*message)
 try:
     # Read data from infile
     with open(infile, 'r') as f:
@@ -95,16 +100,12 @@ try:
         for i in range(m):
             f.write(f" a{i+1} {p[i]}\n")
         f.write(";\n")
-# Error handling
 except IOError as e:
     print(f"Error: No se pudo escribir en el fichero de salida '{outfile}': {e}")
     sys.exit(1)
 
-# El resto del script se puede encapsular en una función o continuar aquí.
-# Por simplicidad, lo dejamos en el flujo principal.
-
-print(f"Fichero de datos '{outfile}' generado correctamente.")
-print("Ejecutando glpsol...")
+debug_print(f"Fichero de datos '{outfile}' generado correctamente.")
+debug_print("Ejecutando glpsol...")
 
 # Solve with GLPK, capturing output to hide it from the terminal
 try:
@@ -114,14 +115,10 @@ try:
         text=True,
         check=True  # This will raise an exception if glpsol fails
     )
-
-# Case: glpsol not found
 except FileNotFoundError:
     print("\nError: El comando 'glpsol' no se encontró.")
     print("Comprueba que GLPK está instalado y que 'glpsol' está en el PATH del sistema.")
     sys.exit(1)
-    
-# Case: .mod not found
 except subprocess.CalledProcessError as e:
     print(f"\nError: 'glpsol' terminó con un código de error ({e.returncode}).")
     print("Revisa que el fichero del modelo 'parte-2-1.mod' existe y es correcto.")
@@ -162,11 +159,10 @@ except FileNotFoundError:
     print("Error: El fichero de resultados 'output.out' no fue generado por glpsol.")
     sys.exit(1)
 
-print("Ejecución de glpsol finalizada.\n")
-
+debug_print("Ejecución de glpsol finalizada.\n")
 
 # Print the results
-print("="*25, "RESULTADOS", "="*25, "\n")
+debug_print("="*25, "RESULTADOS", "="*25, "\n")
 
 print(f"Coste total: {objective_value}, Variables: {variables_count}, Restricciones: {constraints_count}")
 
@@ -182,6 +178,6 @@ for bus, franja in sorted(assignments.items()):
 for bus in sorted(list(unassigned_buses)):
     print(f"Autobús {bus} sin asignar")
 
-print("\n" + "="*62)
+debug_print("="*62)
 # More detailed info
-print("Para más detalles, consulta el fichero output.out")
+debug_print("Para más detalles, consulta el fichero output.out")
