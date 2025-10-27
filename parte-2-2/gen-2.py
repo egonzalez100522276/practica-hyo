@@ -2,20 +2,26 @@
 import sys
 import subprocess
 import re
+import argparse
 
-# Check argc
-if len(sys.argv) != 3:
-    print("Uso: ./gen-2.py <fichero-entrada> <fichero-salida>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description="Genera un fichero .dat para el problema de asignación de autobuses a talleres y lo resuelve con GLPK.")
+parser.add_argument("infile", help="Fichero de entrada con los datos del problema.")
+parser.add_argument("outfile", help="Fichero .dat de salida que se generará.")
+parser.add_argument("--debug", action="store_true", help="Activa el modo de depuración para mostrar más información.")
+args = parser.parse_args()
 
-infile = sys.argv[1]
-outfile = sys.argv[2]
+infile = args.infile
+outfile = args.outfile
+
+def debug_print(*message):
+    if args.debug:
+        print(*message)
 
 
 # Read and validate infile
 try:
-    with open(infile, "r") as f:
-        print(f"Leyendo {infile}...")
+    with open(infile, "r", encoding="utf-8") as f:
+        debug_print(f"Leyendo {infile}...")
         lines = [l.strip() for l in f if l.strip()]
 
     if len(lines) < 3:
@@ -104,7 +110,7 @@ except FileNotFoundError:
 
 # Generate .dat file
 try:
-    with open(outfile, "w") as f:
+    with open(outfile, "w", encoding="utf-8") as f:
         # Sets
         f.write("# --- Conjuntos ---\n")
         f.write(f"set AUTOBUSES := {' '.join([f'A{i+1}' for i in range(m)])};\n")
@@ -130,7 +136,7 @@ try:
             f.write(f"S{s+1}   {row}\n")
         f.write(";\n")
 
-    print(f"Fichero de datos '{outfile}' generado correctamente.")
+    debug_print(f"Fichero de datos '{outfile}' generado correctamente.")
 
 # Case: writing error
 except IOError as e:
@@ -140,13 +146,14 @@ except IOError as e:
 
 # Run GLPK
 try:
-    print("Ejecutando glpsol...")
+    debug_print("Ejecutando glpsol...")
     result = subprocess.run(
         ["glpsol", "--model", "parte-2-2.mod", "--data", outfile, "-o", "output2.out"],
         capture_output=True,
         text=True,
         check=True,
     )
+
 # Case: .mod not found
 except subprocess.CalledProcessError as e:
     print(f"\nError: 'glpsol' terminó con un código de error ({e.returncode}).")
@@ -166,7 +173,7 @@ objective_value = None
 rows = cols = None
 assignments = {}
 
-with open("output2.out", "r") as f:
+with open("output2.out", "r", encoding="utf-8") as f:
     out = f.read()
 
 # Objective value (min z)
@@ -195,8 +202,8 @@ for m in pattern.finditer(out):
 
 
 # Print results
-print("="*25, "RESULTADOS", "="*25)
-print(f"Objetivo óptimo: {objective_value}, Variables: {cols}, Restricciones: {rows}\n")
+debug_print("="*25, "RESULTADOS", "="*25)
+print(f"Coste total óptimo: {objective_value}, Variables: {cols}, Restricciones: {rows}\n")
 
 if assignments:
     for a in sorted(assignments.keys()):
@@ -207,7 +214,5 @@ if assignments:
 else:
     print("No se encontraron asignaciones X=1 en la solución.")
 
-print("="*62)
-# More detailed info
-print("Para más detalles, consulta el fichero output.out")
-
+debug_print("="*62)
+debug_print("Para más detalles, consulta el fichero output.out")
