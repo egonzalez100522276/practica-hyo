@@ -57,7 +57,7 @@ try:
             sys.exit(1)
         for j in range(len(row)): # Case: negative parameter
             if row[j] < 0:
-                print(f"Error: La posición {i+1}, {j+1} de C contiene un elemento negativo.")
+                print(f"Error: La posición [{i+1}, {j+1}] de C contiene un elemento negativo.")
                 sys.exit(1)
        
         if len(row) != m: # Case: bad dimensions
