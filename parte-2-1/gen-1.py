@@ -5,7 +5,7 @@ import re
 import subprocess
 
 if len(sys.argv) != 3:
-    print("Use: ./gen-1.py <fichero-entrada> <fichero-salida>")
+    print("Uso: ./gen-1.py <fichero-entrada> <fichero-salida>")
     sys.exit(1)
 
 infile = sys.argv[1]
@@ -95,6 +95,7 @@ try:
         for i in range(m):
             f.write(f" a{i+1} {p[i]}\n")
         f.write(";\n")
+# Error handling
 except IOError as e:
     print(f"Error: No se pudo escribir en el fichero de salida '{outfile}': {e}")
     sys.exit(1)
@@ -113,10 +114,14 @@ try:
         text=True,
         check=True  # This will raise an exception if glpsol fails
     )
+
+# Case: glpsol not found
 except FileNotFoundError:
     print("\nError: El comando 'glpsol' no se encontró.")
     print("Comprueba que GLPK está instalado y que 'glpsol' está en el PATH del sistema.")
     sys.exit(1)
+    
+# Case: .mod not found
 except subprocess.CalledProcessError as e:
     print(f"\nError: 'glpsol' terminó con un código de error ({e.returncode}).")
     print("Revisa que el fichero del modelo 'parte-2-1.mod' existe y es correcto.")
