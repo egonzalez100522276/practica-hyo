@@ -150,6 +150,16 @@ assignments = {}
 with open("output2.out", "r", encoding="utf-8") as f:
     out = f.read()
 
+debug_print(result.stdout)
+# Check if an optimal solution was found
+if "OPTIMAL SOLUTION FOUND" not in result.stdout:
+    print("Error: No se encontró una solución óptima.", file=sys.stderr)
+    if "HAS NO PRIMAL FEASIBLE SOLUTION" in result.stdout:
+        print("Razón: El problema no tiene una solución factible (es infactible).", file=sys.stderr)
+    elif "HAS NO DUAL FEASIBLE SOLUTION" in result.stdout:
+        print("Razón: El problema es no acotado.", file=sys.stderr)
+    sys.exit(1)
+
 mobj = re.search(r"Objective:\s+\w+\s+=\s+([0-9eE.+-]+)", out)
 if mobj:
     objective_value = float(mobj.group(1))

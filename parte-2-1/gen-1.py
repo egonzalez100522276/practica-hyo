@@ -110,10 +110,10 @@ debug_print("Ejecutando glpsol...")
 # Solve with GLPK, capturing output to hide it from the terminal
 try:
     result = subprocess.run(
-        ["glpsol", "--model", "parte-2-1.mod", "--data", outfile, "-o", "output.out"],
+        ["glpsol", "--model", "parte-2-1.mod", "--data", outfile, "--output", "output.out"],
         capture_output=True,
         text=True,
-        check=True  # This will raise an exception if glpsol fails
+        check=False  # We will check the output manually
     )
 except FileNotFoundError:
     print("\nError: El comando 'glpsol' no se encontró.")
@@ -124,6 +124,17 @@ except subprocess.CalledProcessError as e:
     print("Revisa que el fichero del modelo 'parte-2-1.mod' existe y es correcto.")
     print("Salida de error de glpsol:")
     print(e.stderr)
+    sys.exit(1)
+
+# Check if an optimal solution was found by reading the stdout
+debug_print(result.stdout)
+if "OPTIMAL LP SOLUTION FOUND" not in result.stdout:
+    print("\nError: No se encontró una solución óptima.", file=sys.stderr)
+    if "HAS NO PRIMAL FEASIBLE SOLUTION" in result.stdout:
+        print("Razón: El problema no tiene una solución factible (es infactible).", file=sys.stderr)
+    elif "HAS NO DUAL FEASIBLE SOLUTION" in result.stdout:
+        print("Razón: El problema es no acotado.", file=sys.stderr)
+    # Exit with an error code so that random-cases-1.py can catch it
     sys.exit(1)
 
 

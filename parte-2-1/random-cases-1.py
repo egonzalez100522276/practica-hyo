@@ -107,16 +107,15 @@ plt.savefig("variables_vs_tiempo.png", dpi=300, bbox_inches='tight')
 plt.show()
 
 # --- Gráfica 2: Variables + Restricciones vs Tiempo ---
-df['vars_plus_constraints'] = df['variables'] + df['constraints']
-df_sorted_total = df.sort_values(by='vars_plus_constraints')
+df_sorted_constraints = df.sort_values(by='constraints')
 plt.figure(figsize=(8,6))
-plt.plot(df_sorted_total['vars_plus_constraints'], df_sorted_total['time_s'],
+plt.plot(df_sorted_constraints['constraints'], df_sorted_constraints['time_s'],
          marker='o', color='orange', linestyle='-')
-plt.xlabel("Número de variables + número de restricciones")
+plt.xlabel("Número de restricciones")
 plt.ylabel("Tiempo de ejecución (s)")
-plt.title("Tiempo de ejecución vs Variables + Restricciones")
+plt.title("Tiempo de ejecución vs Número de restricciones")
 plt.grid(True, linestyle='--', alpha=0.7)
-plt.savefig("vars_plus_constraints_vs_tiempo.png", dpi=300, bbox_inches='tight')
+plt.savefig("constraints_vs_tiempo.png", dpi=300, bbox_inches='tight')
 plt.show()
 
 # Gráfica Variables vs Restricciones
