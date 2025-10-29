@@ -29,7 +29,7 @@ if csv_path.exists():
 if not csv_path.exists():
     with open(csv_path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["case_file", "n_slots", "m_buses", "u_workshops", "time_s", "variables", "constraints"])
+        writer.writerow(["case_file", "n_slots", "m_buses", "u_workshops", "optimal_cost", "time_s", "variables", "constraints", "availability_pct"])
 
 for case_idx in range(1, args.num_cases + 1):
     # Generate random case
@@ -37,8 +37,26 @@ for case_idx in range(1, args.num_cases + 1):
     m = random.randint(1, 10)  # Number of buses
     u = random.randint(1, 10)  # Number of workshops
 
-    # Generate binary O matrix (n x u)
-    O = [[random.randint(0, 1) for _ in range(u)] for _ in range(n)]
+    # Generate binary O matrix (n x u) with exactly m+2 ones
+    O = [[0] * u for _ in range(n)]  # Initialize all to 0
+    
+    # Calculate the number of ones to set
+    num_ones = min(m + 2, n * u)  # Ensure not exceeding the matrix size
+    
+    # Randomly set num_ones elements to 1
+    positions = random.sample(range(n * u), num_ones)
+    for pos in positions:
+        row = pos // u
+        col = pos % u
+        O[row][col] = 1
+
+    # Calculate percentage of available rows (slots)
+    available_rows = sum(1 for row in O if sum(row) > 0)
+    availability_percentage = (available_rows / n) * 100 if n > 0 else 0
+
+    # O = [random.choices([0, 1], weights=[0.4, 0.6], k=u) for _ in range(n)]
+
+
 
     # Ensure the problem is solvable: number of buses must not exceed total available slots.
     total_available_slots = sum(sum(row) for row in O)
@@ -55,7 +73,7 @@ for case_idx in range(1, args.num_cases + 1):
             if i == j:
                 C[i][j] = 0
             else:
-                val = round(random.uniform(1.0, 100.0), 2)
+                val = random.randint(1, 100) # Generate integer costs for C matrix
                 C[i][j] = val
                 C[j][i] = val
 
@@ -78,8 +96,14 @@ for case_idx in range(1, args.num_cases + 1):
             ["python3", "gen-2.py", case_file, output_dat],
             capture_output=True,
             text=True,
-            check=True
+            check=True, # Will raise CalledProcessError if gen-2.py returns non-zero
+            timeout=60  # Timeout of 60 seconds to prevent deadlocks
         )
+    except subprocess.TimeoutExpired as e:
+        print(f"Timeout expired for case {case_idx}. The process was likely deadlocked or taking too long.")
+        print(f"Stdout so far: {e.stdout}")
+        print(f"Stderr so far: {e.stderr}")
+        continue
     except subprocess.CalledProcessError as e:
         print(f"Error executing gen-2.py on case {case_idx}")
         print(e.stderr)
@@ -94,17 +118,27 @@ for case_idx in range(1, args.num_cases + 1):
 
     # Parse variables and constraints
     stdout = result.stdout
+
+    # Check if an optimal solution was reported in the output.
+    # gen-2.py prints the cost, variables and constraints to stdout.
+    cost_match = re.search(r"Coste total óptimo:\s*([0-9eE.+-]+)", stdout, re.IGNORECASE)
+    if not cost_match:
+        print(f"[{case_idx}] Warning: Optimal solution cost not found in the output of gen-2.py. Skipping case.")
+        print(f"Stdout from gen-2.py: {stdout.strip()}")
+        continue
+
+    optimal_cost = float(cost_match.group(1))
     vars_match = re.search(r"Variables:\s*(\d+)", stdout, re.IGNORECASE)
     rows_match = re.search(r"Restricciones:\s*(\d+)", stdout, re.IGNORECASE)
     num_vars = int(vars_match.group(1)) if vars_match else None
     num_constraints = int(rows_match.group(1)) if rows_match else None
 
-    print(f"[{case_idx}] Time: {elapsed_time:.4f}s, Variables: {num_vars}, Constraints: {num_constraints}")
+    print(f"[{case_idx}] Cost: {optimal_cost}, Time: {elapsed_time:.4f}s, Vars: {num_vars}, Constraints: {num_constraints}")
 
     # Save statistics
     with open(csv_path, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([case_file, n, m, u, elapsed_time, num_vars, num_constraints])
+        writer.writerow([case_file, n, m, u, optimal_cost, elapsed_time, num_vars, num_constraints, availability_percentage])
 
     # 🧹 Clean up temporary files if not requested to keep them
     if not args.keep_files:
@@ -113,6 +147,7 @@ for case_idx in range(1, args.num_cases + 1):
                 os.remove(f_)
             except FileNotFoundError:
                 pass
+
 # --- Create plots ---
 
 # Read CSV
@@ -151,6 +186,19 @@ plt.title("Relationship between Variables and Constraints per Case")
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.savefig("variables_vs_constraints_p2.png", dpi=300, bbox_inches='tight')
 
+# --- Plot 4: Availability vs Time ---
+df_sorted_avail = df.sort_values(by='availability_pct')
+plt.figure(figsize=(8,6))
+plt.plot(df_sorted_avail['availability_pct'], df_sorted_avail['time_s'],
+         marker='o', color='purple', linestyle='-')
+plt.xlabel("Percentage of Available Rows (%)")
+plt.ylabel("Execution Time (s)")
+plt.title("Execution Time vs. Row Availability")
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.savefig("availability_vs_time_p2.png", dpi=300, bbox_inches='tight')
+plt.show()
+
 # Clean up the statistics file
 if not args.keep_files:
-    os.remove(csv_path)
+    if csv_path.exists():
+        os.remove(csv_path)
