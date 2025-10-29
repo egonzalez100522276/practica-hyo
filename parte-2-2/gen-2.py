@@ -132,7 +132,7 @@ try:
 
 except subprocess.CalledProcessError as e:
     print(f"\nError: 'glpsol' terminó con un código de error ({e.returncode}).")
-    print("Revisa que el fichero del modelo 'parte-2-1.mod' existe y es correcto.")
+    print("Revisa que el fichero del modelo 'parte-2-2.mod' existe y es correcto.")
     print("Salida de error de glpsol:")
     print(e.stderr)
     sys.exit(1)
@@ -150,7 +150,6 @@ assignments = {}
 with open("output2.out", "r", encoding="utf-8") as f:
     out = f.read()
 
-debug_print(result.stdout)
 # Check if an optimal solution was found
 if "OPTIMAL SOLUTION FOUND" not in result.stdout:
     print("Error: No se encontró una solución óptima.", file=sys.stderr)
