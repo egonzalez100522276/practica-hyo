@@ -14,7 +14,7 @@ var y {AUTOBUSES, AUTOBUSES,  FRANJAS} binary;
 
 /* OBJECTIVE FUNCTION */
 minimize TotalImpact:
-  sum{i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS} (if i <= j then y[i,j,s]*c[i,j] else 0);
+  sum{i in AUTOBUSES, j in AUTOBUSES, s in FRANJAS} (if i < j then y[i,j,s]*c[i,j] else 0);
 
 /* CONSTRAINTS */
 s.t. Availability{s in FRANJAS, t in TALLERES}:
