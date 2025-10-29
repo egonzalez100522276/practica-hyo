@@ -28,81 +28,59 @@ try:
         print(f"Error: el fichero '{infile}' está incompleto.")
         sys.exit(1)
 
-    # First line:
-    # n: Buses
-    # m: Time slots
-    # u: Workshops
+    # First line: n: Buses, m: Time slots, u: Workshops
     try:
         n, m, u = map(int, lines[0].split())
-    
-    # Case: not int
     except ValueError:
         print("Error: Los parámetros de la primera línea deben ser números enteros.")
         sys.exit(1)
 
-    # Additional validations
-    if n < 0:
-        print("Error: El número de autobuses no puede ser negativo.")
-        sys.exit(1)
-    if m < 0:
-        print("Error: El número de franjas no puede ser negativo.")
-        sys.exit(1)
-    if u < 0:
-        print("Error: El número de talleres no puede ser negativo.")
+    if n < 0 or m < 0 or u < 0:
+        print("Error: Los parámetros no pueden ser negativos.")
         sys.exit(1)
 
     # C matrix (m x m)
     C = []
-    # Check C dimensions
     idx = 1
     for i in range(m):
         try:
             row = list(map(float, lines[idx].split()))
-        except ValueError: # Case: non-numeric values
+        except ValueError:
             print(f"Error: La fila {i+1} de C contiene elementos no numéricos.")
             sys.exit(1)
-        for j in range(len(row)): # Case: negative parameter
-            if row[j] < 0:
-                print(f"Error: La posición [{i+1}, {j+1}] de C contiene un elemento negativo.")
-                sys.exit(1)
-       
-        if len(row) != m: # Case: bad dimensions
+        if len(row) != m:
             print(f"Error: la fila {i+1} de C no tiene {m} columnas.")
+            sys.exit(1)
+        if any(v < 0 for v in row):
+            print(f"Error: La fila {i+1} de C contiene un elemento negativo.")
             sys.exit(1)
         C.append(row)
         idx += 1
 
-    # Validate the symetry of C
+    # Validate symmetry of C
     for i in range(m):
         for j in range(m):
             if C[i][j] != C[j][i]:
                 print(f"Error: C no es simétrica en posición ({i+1},{j+1}).")
                 sys.exit(1)
 
-
-
-    # O matrix (u x n)
+    # O matrix (n x u)  ← Cambio: ahora filas = n, columnas = u
     O = []
-    
-    # Check O dimensions
-    for i in range(u):
+    for i in range(n):
         try:
             row = list(map(int, lines[idx].split()))
         except ValueError:
             print(f"Error: la fila {i+1} de O contiene elementos no numéricos.")
             sys.exit(1)
-        if len(row) != n:
-            print(f"Error: la fila {i+1} de O no tiene {n} columnas.")
+        if len(row) != u:
+            print(f"Error: la fila {i+1} de O no tiene {u} columnas.")
             sys.exit(1)
-
-        # Make sure it's binary
-        if any(v not in (0, 1) for v in row):
+        if any(v not in (0,1) for v in row):
             print("Error: la matriz O debe ser binaria (0/1).")
             sys.exit(1)
         O.append(row)
         idx += 1
 
-# Case: infile not found
 except FileNotFoundError:
     print(f"Error: el fichero '{infile}' no existe.")
     sys.exit(1)
@@ -120,25 +98,23 @@ try:
         # Parameter c
         f.write("# --- Parámetro de coincidencia de pasajeros (c[i,j]) ---\n")
         f.write("param c:\n")
-        # Header
         f.write("     " + "  ".join([f"A{i+1}" for i in range(m)]) + " :=\n")
         for i in range(m):
             row = "  ".join(str(int(C[i][j])) if C[i][j].is_integer() else str(C[i][j]) for j in range(m))
             f.write(f"A{i+1}  {row}\n")
         f.write(";\n\n")
 
-        # Parameter o
+        # Parameter o (transposed)
         f.write("# --- Disponibilidad de franjas por taller (o[s,t]) ---\n")
         f.write("param o:\n")
         f.write("      " + "  ".join([f"T{i+1}" for i in range(u)]) + " :=\n")
         for s in range(n):
-            row = "  ".join(str(O[t][s]) for t in range(u))
+            row = "  ".join(str(O[s][t]) for t in range(u))
             f.write(f"S{s+1}   {row}\n")
         f.write(";\n")
 
     debug_print(f"Fichero de datos '{outfile}' generado correctamente.")
 
-# Case: writing error
 except IOError as e:
     print(f"Error al escribir '{outfile}': {e}")
     sys.exit(1)
@@ -154,7 +130,6 @@ try:
         check=True,
     )
 
-# Case: .mod not found
 except subprocess.CalledProcessError as e:
     print(f"\nError: 'glpsol' terminó con un código de error ({e.returncode}).")
     print("Revisa que el fichero del modelo 'parte-2-1.mod' existe y es correcto.")
@@ -168,7 +143,6 @@ except FileNotFoundError:
 
 
 # Read result (Checking assignation detection)
-
 objective_value = None
 rows = cols = None
 assignments = {}
@@ -176,12 +150,10 @@ assignments = {}
 with open("output2.out", "r", encoding="utf-8") as f:
     out = f.read()
 
-# Objective value (min z)
 mobj = re.search(r"Objective:\s+\w+\s+=\s+([0-9eE.+-]+)", out)
 if mobj:
     objective_value = float(mobj.group(1))
 
-# Rows, cols
 mrows = re.search(r"Rows:\s+(\d+)", out)
 mcols = re.search(r"Columns:\s+(\d+)", out)
 if mrows:
@@ -189,7 +161,6 @@ if mrows:
 if mcols:
     cols = int(mcols.group(1))
 
-# Robust pattern: only strictly 1's (no 0's)
 pattern = re.compile(r"[xX]\[(A\d+),(S\d+),(T\d+)\].*?([0-9\.\-Ee]+)")
 for m in pattern.finditer(out):
     a, s, t, val = m.groups()
@@ -200,8 +171,6 @@ for m in pattern.finditer(out):
     except ValueError:
         continue
 
-
-# Print results
 debug_print("="*25, "RESULTADOS", "="*25)
 print(f"Coste total óptimo: {objective_value}, Variables: {cols}, Restricciones: {rows}\n")
 
@@ -209,8 +178,6 @@ if assignments:
     for a in sorted(assignments.keys()):
         s, t = assignments[a]
         print(f"Autobús {a} → Franja {s} en Taller {t}")
-
-# Case: no assignations
 else:
     print("No se encontraron asignaciones X=1 en la solución.")
 
