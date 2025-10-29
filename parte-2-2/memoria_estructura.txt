@@ -1,0 +1,17 @@
+parámetros
+variables de decisión
+restricciones
+	descripción
+	fórmula
+	por qué la fórmula cumple la restricción
+f obj
+Implementación del modelo
+	conjuntos
+	Agrupaciones de restricciones
+	dimensión de los parámetros
+	ejemplos de ejecución
+
+Análisis de resultados
+	gráfica con el tiempo y el número de variables.
+	gráfica con el tiempo y el número de restricciones.
+	Restricciones más relevantes.
