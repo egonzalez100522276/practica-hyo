@@ -149,7 +149,7 @@ assignments = {}
 
 with open("output2.out", "r", encoding="utf-8") as f:
     out = f.read()
-
+debug_print(result.stdout)
 # Check if an optimal solution was found
 if "OPTIMAL SOLUTION FOUND" not in result.stdout:
     print("Error: No se encontró una solución óptima.", file=sys.stderr)
