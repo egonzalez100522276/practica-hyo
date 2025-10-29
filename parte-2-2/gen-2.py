@@ -124,7 +124,7 @@ except IOError as e:
 try:
     debug_print("Ejecutando glpsol...")
     result = subprocess.run(
-        ["glpsol", "--model", "parte-2-2.mod", "--data", outfile, "-o", "output2.out", "--log", "output2.log"],
+        ["glpsol", "--model", "parte-2-2.mod", "--data", outfile, "-o", "output2.out"],
         capture_output=True,
         text=True,
         check=True,
