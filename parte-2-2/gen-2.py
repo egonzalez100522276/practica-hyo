@@ -81,6 +81,11 @@ try:
         O.append(row)
         idx += 1
 
+    # Validate for extra lines in the input file
+    if idx < len(lines):
+        print(f"Error: El fichero de entrada '{infile}' contiene {len(lines)-idx} líneas extra después de los datos esperados.")
+        sys.exit(1)
+
 except FileNotFoundError:
     print(f"Error: el fichero '{infile}' no existe.")
     sys.exit(1)
