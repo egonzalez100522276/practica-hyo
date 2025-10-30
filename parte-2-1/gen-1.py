@@ -30,8 +30,8 @@ try:
     try:
         n, m = map(int, lines[0].split())
         kd, kp = map(float, lines[1].split())
-        d = list(map(float, lines[2].split(",")))
-        p = list(map(float, lines[3].split(",")))
+        d = list(map(float, re.findall(r"[0-9.]+", lines[2])))
+        p = list(map(float, re.findall(r"[0-9.]+", lines[3])))
 
         # --- Additional data validations ---
         if n < 0:
@@ -60,10 +60,16 @@ try:
             if val < 0:
                 print(f"Error: El valor d en la posición {i} ({val}) no puede ser negativo.")
                 sys.exit(1)
+            if val != int(val):
+                print(f"Error: El valor d en la posición {i} ({val}) debe ser un número entero.")
+                sys.exit(1)
 
         for i, val in enumerate(p):
             if val < 0:
                 print(f"Error: El valor p en la posición {i} ({val}) no puede ser negativo.")
+                sys.exit(1)
+            if val != int(val):
+                print(f"Error: El valor p en la posición {i} ({val}) debe ser un número entero.")
                 sys.exit(1)
 
     # Error handling
