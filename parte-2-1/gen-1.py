@@ -25,6 +25,11 @@ try:
     if len(lines) < 4:
         print(f"Error: El fichero de entrada '{infile}' está incompleto. Se esperan al menos 4 líneas.")
         sys.exit(1)
+    
+    # Case: extra lines in file
+    if len(lines) > 4:
+        print(f"Error: El fichero de entrada '{infile}' contiene {len(lines) - 4} líneas extra. Se esperan exactamente 4 líneas.")
+        sys.exit(1)
 
     # Parse data
     try:
