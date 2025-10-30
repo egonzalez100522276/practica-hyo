@@ -30,7 +30,7 @@ try:
 
     # First line: n: Buses, m: Time slots, u: Workshops
     try:
-        n, m, u = map(int, lines[0].split())
+        n, m, u = map(int, re.findall(r"[0-9.]+", lines[0]))
     except ValueError:
         print("Error: Los parámetros de la primera línea deben ser números enteros.")
         sys.exit(1)
@@ -44,7 +44,7 @@ try:
     idx = 1
     for i in range(m):
         try:
-            row = list(map(float, lines[idx].split()))
+            row = list(map(float, re.findall(r"[0-9.]+", lines[idx])))
         except ValueError:
             print(f"Error: La fila {i+1} de C contiene elementos no numéricos.")
             sys.exit(1)
@@ -68,9 +68,9 @@ try:
     O = []
     for i in range(n):
         try:
-            row = list(map(int, lines[idx].split()))
+            row = list(map(int, re.findall(r"[0-9.]+", lines[idx])))
         except ValueError:
-            print(f"Error: la fila {i+1} de O contiene elementos no numéricos.")
+            print(f"Error: la fila {i+1} de O contiene elementos no enteros.")
             sys.exit(1)
         if len(row) != u:
             print(f"Error: la fila {i+1} de O no tiene {u} columnas.")
