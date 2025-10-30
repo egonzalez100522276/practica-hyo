@@ -28,8 +28,8 @@ try:
 
     # Parse data
     try:
-        n, m = map(int, lines[0].split())
-        kd, kp = map(float, lines[1].split())
+        n, m = map(int, re.findall(r"[0-9.]+", lines[0]))
+        kd, kp = map(float, re.findall(r"[0-9.]+", lines[1]))
         d = list(map(float, re.findall(r"[0-9.]+", lines[2])))
         p = list(map(float, re.findall(r"[0-9.]+", lines[3])))
 
